@@ -52,7 +52,13 @@
     </div>
 
     <footer>
-
+        <th:block th:if="${error == true}">
+            <div id="message-alert">
+                <div class="alert-danger">
+                    <label class="error">Thêm mới không thành công</label>
+                </div>
+            </div>
+        </th:block>
     </footer>
 </div>
 
