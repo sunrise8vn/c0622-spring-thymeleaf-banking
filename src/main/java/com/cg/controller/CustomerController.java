@@ -7,6 +7,8 @@ import com.cg.service.customer.ICustomerService;
 import com.cg.service.deposit.IDepositService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.method.annotation.ModelAndViewMethodReturnValueHandler;
@@ -31,7 +33,7 @@ public class CustomerController {
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setViewName("customer/list");
 
-        List<Customer> customers = customerService.findAll();
+        List<Customer> customers = customerService.findAllByDeletedIsFalse();
 
         modelAndView.addObject("customers", customers);
 
@@ -58,6 +60,24 @@ public class CustomerController {
         modelAndView.setViewName("customer/create");
 
         modelAndView.addObject("customer", new Customer());
+
+        return modelAndView;
+    }
+
+    @GetMapping("/update/{customerId}")
+    public ModelAndView showCreatePage(@PathVariable Long customerId) {
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("customer/update");
+
+        Optional<Customer> customerOptional = customerService.findById(customerId);
+
+        if (!customerOptional.isPresent()) {
+            modelAndView.addObject("customer", new Customer());
+            modelAndView.addObject("error", "ID khách hàng không hợp lệ");
+            return modelAndView;
+        }
+
+        modelAndView.addObject("customer", customerOptional.get());
 
         return modelAndView;
     }
@@ -100,10 +120,45 @@ public class CustomerController {
         return modelAndView;
     }
 
+    @PutMapping("/update/{cid}")
+    public ModelAndView update(@Validated @ModelAttribute Customer customer, @PathVariable Long cid, BindingResult bindingResult) {
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("customer/update");
+
+        if (bindingResult.hasFieldErrors()) {
+            modelAndView.addObject("errors", true);
+            return modelAndView;
+        }
+
+        Optional<Customer> customerOptional = customerService.findById(cid);
+
+        if (!customerOptional.isPresent()) {
+            modelAndView.addObject("customer", new Customer());
+            modelAndView.addObject("error", "ID khách hàng không hợp lệ");
+            return modelAndView;
+        }
+
+        try {
+            customer.setId(cid);
+            customerService.save(customer);
+
+            modelAndView.addObject("customer", customer);
+        } catch (Exception e) {
+            modelAndView.addObject("error", "Thao tác không thành công, vui lòng liên hệ Administrator");
+        }
+
+        return modelAndView;
+    }
+
     @PostMapping("/deposit/{cid}")
-    public ModelAndView deposit(@ModelAttribute Deposit deposit, @PathVariable Long cid) {
+    public ModelAndView deposit(@Validated @ModelAttribute Deposit deposit, @PathVariable Long cid, BindingResult bindingResult) {
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setViewName("customer/deposit");
+
+        if (bindingResult.hasFieldErrors()) {
+            modelAndView.addObject("errors", true);
+            return modelAndView;
+        }
 
         Optional<Customer> customerOptional = customerService.findById(cid);
 

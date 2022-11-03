@@ -54,6 +54,14 @@
                 </div>
             </th:block>
 
+            <th:block th:if="${errors == true}">
+                <div class="alert-danger">
+                    <ul>
+                        <li th:each="err : ${#fields.errors('deposit.*')}" th:text="${err}"></li>
+                    </ul>
+                </div>
+            </th:block>
+
             <th:block th:if="${success}">
                 <div class="alert-success message-success">
                     <label th:text="${success}"></label>

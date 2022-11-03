@@ -29,6 +29,11 @@ public class CustomerServiceImpl implements ICustomerService {
     }
 
     @Override
+    public List<Customer> findAllByDeletedIsFalse() {
+        return customerRepository.findAllByDeletedIsFalse();
+    }
+
+    @Override
     public List<Customer> findAllByFullNameLikeOrEmailLike(String fullName, String email) {
         return customerRepository.findAllByFullNameLikeOrEmailLike(fullName, email);
     }
@@ -49,11 +54,8 @@ public class CustomerServiceImpl implements ICustomerService {
         deposit.setCustomer(customer);
         depositRepository.save(deposit);
 
-        BigDecimal currentBalance = customer.getBalance();
-        BigDecimal transactionAmount = deposit.getTransactionAmount();
-        BigDecimal newBalance = currentBalance.add(transactionAmount);
-        customer.setBalance(newBalance);
-        customerRepository.save(customer);
+        BigDecimal newBalance = deposit.getTransactionAmount();
+        customerRepository.incrementBalance(customer.getId(), newBalance);
     }
 
     @Override

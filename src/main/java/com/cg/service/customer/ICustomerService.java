@@ -10,5 +10,7 @@ public interface ICustomerService extends IGeneralService<Customer> {
 
     List<Customer> findAllByFullNameLikeOrEmailLike(String fullName, String email);
 
+    List<Customer> findAllByDeletedIsFalse();
+
     void deposit(Deposit deposit, Customer customer);
 }

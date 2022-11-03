@@ -1,22 +1,25 @@
 package com.cg.model;
 
-
 import javax.persistence.*;
+import javax.validation.constraints.*;
 import java.math.BigDecimal;
 import java.util.List;
 
+
 @Entity
 @Table(name = "customers")
-public class Customer {
+public class Customer extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
+    @NotEmpty(message = "Họ tên không được để trống")
     @Column(name = "full_name", nullable = false)
     private String fullName;
 
+//    @Pattern(regexp = "^[\\w]+@([\\w-]+\\.)+[\\w-]{2,4}$", message = "Vui lòng nhập đúng định dạng email")
+    @Pattern(regexp = "^[\\w]+@([\\w-]+\\.)+[\\w-]{2,4}$")
     @Column(nullable = false, unique = true)
     private String email;
 
@@ -24,7 +27,8 @@ public class Customer {
 
     private String address;
 
-    @Column(precision = 12, scale = 0, nullable = false)
+
+    @Column(precision = 12, scale = 0, nullable = false, updatable = false)
     private BigDecimal balance;
 
 

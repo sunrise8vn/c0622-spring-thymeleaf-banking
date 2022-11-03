@@ -40,6 +40,7 @@
                         <th>Phone</th>
                         <th>Balance</th>
                         <th>Address</th>
+                        <th colspan="2">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -51,6 +52,22 @@
                             <td th:text="${item.phone}"></td>
                             <td th:text="${item.balance}"></td>
                             <td th:text="${item.address}"></td>
+                            <td>
+                                <a th:href="@{'/customers/update/'+${item.id}}">
+                                    <button class="btn btn-outline-secondary">
+                                        <i class="fa fa-plus" aria-hidden="true"></i>
+                                        Update
+                                    </button>
+                                </a>
+                            </td>
+                            <td>
+                                <a th:href="@{'/customers/deposit/'+${item.id}}">
+                                    <button class="btn btn-outline-success">
+                                        <i class="fa fa-plus" aria-hidden="true"></i>
+                                        Deposit
+                                    </button>
+                                </a>
+                            </td>
                         </tr>
                     </th:block>
 
