@@ -3,8 +3,10 @@ package com.cg.service.customer;
 
 import com.cg.model.Customer;
 import com.cg.model.Deposit;
+import com.cg.model.Transfer;
 import com.cg.repository.CustomerRepository;
 import com.cg.repository.DepositRepository;
+import com.cg.repository.TransferRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +25,9 @@ public class CustomerServiceImpl implements ICustomerService {
     @Autowired
     private DepositRepository depositRepository;
 
+    @Autowired
+    private TransferRepository transferRepository;
+
     @Override
     public List<Customer> findAll() {
         return customerRepository.findAll();
@@ -31,6 +36,11 @@ public class CustomerServiceImpl implements ICustomerService {
     @Override
     public List<Customer> findAllByDeletedIsFalse() {
         return customerRepository.findAllByDeletedIsFalse();
+    }
+
+    @Override
+    public List<Customer> findAllByDeletedIsFalseAndIdNot(Long id) {
+        return customerRepository.findAllByDeletedIsFalseAndIdNot(id);
     }
 
     @Override
@@ -56,6 +66,22 @@ public class CustomerServiceImpl implements ICustomerService {
 
         BigDecimal newBalance = deposit.getTransactionAmount();
         customerRepository.incrementBalance(customer.getId(), newBalance);
+    }
+
+    @Override
+    public void transfer(Transfer transfer) {
+
+        Long senderId = transfer.getSender().getId();
+        Long recipientId = transfer.getRecipient().getId();
+
+        BigDecimal transferAmount = transfer.getTransferAmount();
+        BigDecimal transactionAmount = transfer.getTransactionAmount();
+
+        customerRepository.reduceBalance(senderId, transactionAmount);
+
+        customerRepository.incrementBalance(recipientId, transferAmount);
+
+        transferRepository.save(transfer);
     }
 
     @Override

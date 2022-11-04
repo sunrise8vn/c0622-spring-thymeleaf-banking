@@ -1,5 +1,9 @@
 package com.cg.model;
 
+import org.springframework.validation.Errors;
+import org.springframework.validation.ValidationUtils;
+import org.springframework.validation.Validator;
+
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import java.math.BigDecimal;
@@ -8,7 +12,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "customers")
-public class Customer extends BaseEntity {
+public class Customer extends BaseEntity implements Validator {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,8 +22,7 @@ public class Customer extends BaseEntity {
     @Column(name = "full_name", nullable = false)
     private String fullName;
 
-//    @Pattern(regexp = "^[\\w]+@([\\w-]+\\.)+[\\w-]{2,4}$", message = "Vui lòng nhập đúng định dạng email")
-    @Pattern(regexp = "^[\\w]+@([\\w-]+\\.)+[\\w-]{2,4}$")
+    @Pattern(regexp = "^[\\w]+@([\\w-]+\\.)+[\\w-]{2,4}$", message = "Vui lòng nhập đúng định dạng email")
     @Column(nullable = false, unique = true)
     private String email;
 
@@ -34,6 +37,12 @@ public class Customer extends BaseEntity {
 
     @OneToMany
     private List<Deposit> deposits;
+
+    @OneToMany
+    private List<Transfer> senders;
+
+    @OneToMany
+    private List<Transfer> recipients;
 
     public Customer() {
     }
@@ -108,4 +117,23 @@ public class Customer extends BaseEntity {
     }
 
 
+    @Override
+    public boolean supports(Class<?> aClass) {
+        return Customer.class.isAssignableFrom(aClass);
+    }
+
+    @Override
+    public void validate(Object target, Errors errors) {
+        Customer customer = (Customer) target;
+
+        String fullName = customer.getFullName();
+
+        if (fullName.length() < 5){
+            errors.rejectValue("fullName", "fullName.length.min");
+        }
+
+        if (fullName.length() > 20){
+            errors.rejectValue("fullName", "fullName.length.max");
+        }
+    }
 }

@@ -40,7 +40,7 @@
                         <th>Phone</th>
                         <th>Balance</th>
                         <th>Address</th>
-                        <th colspan="2">Action</th>
+                        <th colspan="4">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -68,17 +68,43 @@
                                     </button>
                                 </a>
                             </td>
+                            <td>
+                                <a th:href="@{'/customers/transfer/'+${item.id}}">
+                                    <button class="btn btn-outline-primary">
+                                        <i class="fa fa-exchange" aria-hidden="true"></i>
+                                        Transfer
+                                    </button>
+                                </a>
+                            </td>
+                            <td>
+                                <a th:href="@{'/customers/delete/'+${item.id}}">
+                                    <button class="btn btn-outline-danger">
+                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                        Delete
+                                    </button>
+                                </a>
+                            </td>
                         </tr>
                     </th:block>
-
                 </tbody>
             </table>
         </div>
 
-        <footer>
-
+        <footer id="footer">
+            <th:block th:if="${success}">
+                <div class="alert-success message-success">
+                    <label th:text="${success}"></label>
+                </div>
+                <script th:inline="javascript">
+                    setTimeout(() => {
+                        document.getElementById("footer").innerHTML = "";
+                    }, 3000);
+                </script>
+            </th:block>
         </footer>
     </div>
+
+    <th:block th:replace="layout/script :: script" />
 
 </body>
 </html>

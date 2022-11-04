@@ -18,8 +18,8 @@ footer {
     left: 0;
     bottom: 0;
     width: 100vw;
-    height: 0;
-    padding-right: 50px;
+    height: auto;
+    /*padding-right: 50px;*/
     color: #0f5132;
 }
 
