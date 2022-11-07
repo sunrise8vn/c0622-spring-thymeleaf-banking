@@ -4,6 +4,7 @@ package com.cg.controller;
 import com.cg.model.Customer;
 import com.cg.model.Deposit;
 import com.cg.model.Transfer;
+import com.cg.model.dto.TransferDTO;
 import com.cg.service.customer.ICustomerService;
 import com.cg.service.deposit.IDepositService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -243,17 +244,25 @@ public class CustomerController {
         return modelAndView;
     }
 
-    @PostMapping("/transfer/{customerId}")
-    public ModelAndView transfer(@PathVariable Long customerId, @Validated @ModelAttribute Transfer transfer, BindingResult bindingResult) {
+    @PostMapping("/transfer/{senderId}")
+    public ModelAndView transfer(@PathVariable Long senderId, @Validated @ModelAttribute TransferDTO transferDTO, BindingResult bindingResult) {
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setViewName("customer/transfer");
 
         if (bindingResult.hasFieldErrors()) {
+            Optional<Customer> senderOptional = customerService.findById(senderId);
+            modelAndView.addObject("sender", senderOptional.get());
+
+            modelAndView.addObject("transfer", new Transfer());
+
+            List<Customer> recipients = customerService.findAllByDeletedIsFalseAndIdNot(senderId);
+            modelAndView.addObject("recipients", recipients);
+
             modelAndView.addObject("errors", true);
             return modelAndView;
         }
 
-        Optional<Customer> senderOptional = customerService.findById(customerId);
+        Optional<Customer> senderOptional = customerService.findById(senderId);
 
         if (!senderOptional.isPresent()) {
             modelAndView.addObject("transfer", new Transfer());
@@ -263,11 +272,13 @@ public class CustomerController {
             return modelAndView;
         }
 
-        List<Customer> recipients = customerService.findAllByDeletedIsFalseAndIdNot(customerId);
+        List<Customer> recipients = customerService.findAllByDeletedIsFalseAndIdNot(senderId);
 
-        Customer recipient = transfer.getRecipient();
+        Optional<Customer> recipient = customerService.findById(Long.parseLong(transferDTO.getRecipientId()));
 
-        if (recipient == null) {
+//        Customer recipient = transfer.getRecipient();
+
+        if (!recipient.isPresent()) {
             modelAndView.addObject("transfer", new Transfer());
             modelAndView.addObject("sender", senderOptional.get());
             modelAndView.addObject("recipients", recipients);
@@ -277,26 +288,32 @@ public class CustomerController {
         }
 
         BigDecimal currentSenderBalance = senderOptional.get().getBalance();
-        BigDecimal transferAmount = transfer.getTransferAmount();
+//        BigDecimal transferAmount = transfer.getTransferAmount();
+        BigDecimal transferAmount = BigDecimal.valueOf(Long.parseLong(transferDTO.getTransferAmount()));
         long fees = 10;
         BigDecimal feesAmount = transferAmount.multiply(new BigDecimal(fees)).divide(new BigDecimal(100L));
         BigDecimal transactionAmount = transferAmount.add(feesAmount);
 
         if (currentSenderBalance.compareTo(transactionAmount) < 0) {
+            modelAndView.addObject("transfer", new Transfer());
             modelAndView.addObject("sender", senderOptional.get());
             modelAndView.addObject("recipients", recipients);
             modelAndView.addObject("error", "Số dư tài khoản không đủ để thực hiện giao dịch");
             return modelAndView;
         }
 
+        Transfer transfer = new Transfer();
+
         transfer.setId(0L);
         transfer.setSender(senderOptional.get());
+        transfer.setRecipient(recipient.get());
+        transfer.setTransferAmount(transferAmount);
         transfer.setFees(fees);
         transfer.setFeesAmount(feesAmount);
         transfer.setTransactionAmount(transactionAmount);
         customerService.transfer(transfer);
 
-        Optional<Customer> newSenderOptional = customerService.findById(customerId);
+        Optional<Customer> newSenderOptional = customerService.findById(senderId);
 
         try {
             modelAndView.addObject("transfer", new Transfer());

@@ -1,6 +1,8 @@
 package com.cg.model;
 
 
+import com.sun.istack.NotNull;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
 

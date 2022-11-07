@@ -46,7 +46,7 @@
                 </div>
                 <div class="col-md-3">
                     <label class="form-label">Recipient Name</label>
-                    <select name="recipient" id="recipient" class="form-select">
+                    <select name="recipientId" id="recipient" class="form-select">
                         <th:block th:each="item : ${recipients}">
                             <option th:value="${item.id}" th:text="'(' + ${item.id} + ') ' + ${item.fullName}"></option>
                         </th:block>
@@ -54,7 +54,7 @@
                 </div>
                 <div class="col-md-3">
                     <label class="form-label">Transfer Amount ($)</label>
-                    <input type="number" class="form-control" th:field="*{transferAmount}">
+                    <input type="text" class="form-control" th:field="*{transferAmount}">
                 </div>
                 <div class="col-md-3">
                     <label class="form-label">Fees (%)</label>
@@ -86,7 +86,7 @@
             <th:block th:if="${errors == true}">
                 <div class="alert-danger">
                     <ul>
-                        <li th:each="err : ${#fields.errors('transfer.*')}" th:text="${err}"></li>
+                        <li th:each="err : ${#fields.errors('transferDTO.*')}" th:text="${err}"></li>
                     </ul>
                 </div>
             </th:block>

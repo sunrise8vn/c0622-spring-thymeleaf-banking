@@ -18,11 +18,11 @@ public class Customer extends BaseEntity implements Validator {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotEmpty(message = "Họ tên không được để trống")
+//    @NotEmpty(message = "Họ tên không được để trống")
     @Column(name = "full_name", nullable = false)
     private String fullName;
 
-    @Pattern(regexp = "^[\\w]+@([\\w-]+\\.)+[\\w-]{2,4}$", message = "Vui lòng nhập đúng định dạng email")
+//    @Pattern(regexp = "^[\\w]+@([\\w-]+\\.)+[\\w-]{2,4}$", message = "Vui lòng nhập đúng định dạng email")
     @Column(nullable = false, unique = true)
     private String email;
 
